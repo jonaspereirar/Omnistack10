@@ -1,6 +1,7 @@
 const { Router } = require('express')
-const axios = require('axios');
-const Dev = require('./models/Dev')
+const DevController = require('./controllers/DevController')
+const SearchController = require('./controllers/SearchController')
+
 
 const routes = Router()
 
@@ -11,30 +12,9 @@ const routes = Router()
  * Body: req.body (criação, acesso ao corpo do registo a criar/alterar)
  */
 
-routes.post('/devs', async (req, response) => {
-    const { github_username, techs, latitude, longitude } = req.body;
+routes.post('/devs', DevController.store)
+routes.get('/devs', DevController.index)
 
-    const apiResponse = await axios.get(`https://api.github.com/users/${github_username}`)
-
-    let { name = login, avatar_url, bio } = apiResponse.data
-
-    const techsArray = techs.split(',').map(tech => tech.trim())
-
-    const location = {
-        type: 'Point',
-        coordinates: [longitude, latitude],
-
-    }
-
-    const dev = await Dev.create({
-        github_username,
-        name,
-        avatar_url,
-        bio,
-        techs: techsArray,
-        location,
-    })
-    return response.json(dev)
-})
+routes.get('/search', SearchController.index)
 
 module.exports = routes;
